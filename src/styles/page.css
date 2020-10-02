@@ -1,0 +1,19 @@
+
+.table-warp {
+  position:absolute;
+  padding-bottom: 30px;
+  margin: 50px 30px;
+  width:calc(100vw - 320px);
+  background-color: white;
+  
+}
+.header {
+  height: 50px;
+  padding: 10px 30px;
+}
+.search1 {
+  position: absolute;
+  margin-left:calc(0.9 * calc( 100vw - 320px ) + 60px - 180px);
+  size: mini;
+}
+
