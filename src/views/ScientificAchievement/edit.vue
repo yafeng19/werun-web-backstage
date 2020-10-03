@@ -11,7 +11,7 @@
             font-size: 20px;
           "
         >
-          {{ type }}项目
+          {{ type }}成果
         </div>
         <div
           style="
@@ -22,24 +22,24 @@
           "
         ></div>
         <el-row class="full-row">
-          <b class="sub-title">项目标题：&#8194;&#8194;</b>
+          <b class="sub-title">成果标题：&#8194;&#8194;</b>
           <el-input
             style="width: 300px; size: 'mini'"
             v-model="form.title"
           ></el-input>
         </el-row>
         <el-row class="full-row">
-          <b class="sub-title">项目介绍：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.context"
-          ></el-input>
-        </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">项目照片：&#8194;&#8194;</b>
+          <b class="sub-title">成果图片：&#8194;&#8194;</b>
           <el-input
             style="width: 300px; size: 'mini'"
             v-model="form.picUrl"
+          ></el-input>
+        </el-row>
+        <el-row class="full-row">
+          <b class="sub-title">项目内容：&#8194;&#8194;</b>
+          <el-input
+            style="width: 300px; size: 'mini'"
+            v-model="form.context"
           ></el-input>
         </el-row>
         <el-row :gutter="20">
@@ -55,7 +55,7 @@
   </transition>
 </template>
   <script>
-import { addProject } from "@/api/projectList.js";
+import { addScientificAchievement } from "@/api/scientificAchievementList.js";
 
 export default {
   data() {
@@ -78,10 +78,10 @@ export default {
       if (this.type == "添加") {
         let param = {
           title: this.form.title,
-          context: this.form.context,
           picUrl: this.form.picUrl,
+          context: this.form.context,
         };
-        addProject(param).then((res) => {
+        addScientificAchievement(param).then((res) => {
           console.log(res);
           this.$message(res.data.message);
         });
@@ -89,8 +89,8 @@ export default {
       } else {
         var rn = [];
         rn.push(this.title);
-        this.$set(this.form, "project", rn);
-        addProject(this.form).then((res) => {
+        this.$set(this.form, "scientificAchievement", rn);
+        addScientificAchievement(this.form).then((res) => {
           console.log(res);
           this.$message(res.data.message);
         });
@@ -102,8 +102,8 @@ export default {
       this.$emit("closeDialog", false);
       this.form = {
         title: "",
-        context: "",
         picUrl: "",
+        context: "",
       };
     },
   },

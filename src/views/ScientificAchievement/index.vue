@@ -1,7 +1,7 @@
 <template>
   <div class="table-warp">
     <div class="header">
-      <h3>项目展示</h3>
+      <h3>科研成果</h3>
     </div>
 
     <el-button
@@ -9,8 +9,8 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_project"
-      >添加项目</el-button
+      @click="add_scientificAchievement"
+      >添加成果</el-button
     >
     <div class="search">
       <el-input
@@ -37,9 +37,9 @@
       >
         <!-- @selection-change="handleSelectionChange" -->
 
-        <el-table-column prop="title" label="项目名称"></el-table-column>
-        <el-table-column prop="context" label="项目介绍"></el-table-column>
-        <el-table-column prop="picUrl" label="项目照片"></el-table-column>
+        <el-table-column prop="title" label="成果标题"></el-table-column>
+        <el-table-column prop="picUrl" label="照片地址"></el-table-column>
+        <el-table-column prop="context" label="项目内容"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -64,7 +64,7 @@
         @changePage="changeCurrentPage"
       />
     </div>
-    <editProject
+    <editScientificAchievement
       v-show="editVisible"
       :type="type"
       :form="edit_form"
@@ -74,8 +74,12 @@
 </template>
 
 <script>
-import { getList, deleteProject, addProject } from "@/api/projectList.js";
-import editProject from "./edit.vue";
+import {
+  getList,
+  deleteScientificAchievement,
+  addScientificAchievement,
+} from "@/api/scientificAchievementList.js";
+import editScientificAchievement from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
@@ -91,32 +95,32 @@ export default {
       totalElement: 100,
       tableData: [
         {
-          title: "项目1",
-          context: "介绍1",
+          title: "成果1",
           picUrl: "url1",
+          context: "内容1",
         },
         {
-          title: "项目2",
-          context: "介绍2",
+          title: "成果2",
           picUrl: "url2",
+          context: "内容2",
         },
         {
-          title: "项目3",
-          context: "介绍3",
+          title: "成果3",
           picUrl: "url3",
+          context: "内容3",
         },
       ],
     };
   },
-  components: { pageBar, editProject },
+  components: { pageBar, editScientificAchievement },
   mounted() {
     getList().then((res) => {
       this.message = res.data.message;
       this.success = res.data.success;
 
-      this.context = res.data.data.context;
       this.title = res.data.data.title;
       this.picUrl = res.data.data.picUrl;
+      this.context = res.data.data.context;
       console.log(res);
       /*
       this.tableData = res.data.data.list;
@@ -139,7 +143,7 @@ export default {
     */
   },
   methods: {
-    add_project() {
+    add_scientificAchievement() {
       this.editVisible = true; //弹出窗口
       this.type = "添加";
     },
@@ -177,7 +181,7 @@ export default {
 
     changeCurrentPage() {
       this.$axios({
-        url: "/werun/project/pageProject",
+        url: "/werun/scientificAchievement/pageScientificAchievement",
         method: "GET",
         params: {
           pageNum: this.pageNum,
@@ -204,7 +208,7 @@ export default {
     },
 
     deleteData(index, row) {
-      deleteProject(row.id).then((res) => {
+      deleteScientificAchievement(row.id).then((res) => {
         console.log(res);
         this.$message(res.data.message);
       });

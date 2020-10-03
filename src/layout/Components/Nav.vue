@@ -1,6 +1,6 @@
 <template>
   <div id="nav_wrap">
-    <div style="height:80px;"></div>
+    <div style="height: 80px"></div>
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -58,10 +58,10 @@
           <span slot="title">科研成果</span>
         </template>
         <el-menu-item-group>
-        <el-menu-item index="ScientificResults">
-          <i class="el-icon-caret-right"></i>
-          科研成果
-        </el-menu-item>
+          <el-menu-item index="ScientificAchievement">
+            <i class="el-icon-caret-right"></i>
+            科研成果
+          </el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-submenu index="5">
@@ -86,7 +86,7 @@ export default {};
 <style scoped>
 #nav_wrap {
   position: absolute;
-  top:0px;
+  top: 0px;
   left: 0px;
   width: 260px;
   height: 100vh;

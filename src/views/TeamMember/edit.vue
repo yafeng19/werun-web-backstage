@@ -11,7 +11,7 @@
             font-size: 20px;
           "
         >
-          {{ type }}项目
+          {{ type }}成员
         </div>
         <div
           style="
@@ -22,24 +22,40 @@
           "
         ></div>
         <el-row class="full-row">
-          <b class="sub-title">项目标题：&#8194;&#8194;</b>
+          <b class="sub-title">成员姓名：&#8194;&#8194;</b>
           <el-input
             style="width: 300px; size: 'mini'"
-            v-model="form.title"
+            v-model="form.name"
           ></el-input>
         </el-row>
         <el-row class="full-row">
-          <b class="sub-title">项目介绍：&#8194;&#8194;</b>
+          <b class="sub-title">成员年级：&#8194;&#8194;</b>
           <el-input
             style="width: 300px; size: 'mini'"
-            v-model="form.context"
+            v-model="form.grade"
           ></el-input>
         </el-row>
         <el-row class="full-row">
-          <b class="sub-title">项目照片：&#8194;&#8194;</b>
+          <b class="sub-title">照片地址：&#8194;&#8194;</b>
           <el-input
             style="width: 300px; size: 'mini'"
             v-model="form.picUrl"
+          ></el-input>
+        </el-row>
+        <el-row class="full-row">
+          <b class="sub-title"
+            >专&#8194;&#8194;&#8194;&#8194;业：&#8194;&#8194;</b
+          >
+          <el-input
+            style="width: 300px; size: 'mini'"
+            v-model="form.major"
+          ></el-input>
+        </el-row>
+        <el-row class="full-row">
+          <b class="sub-title">职务/方向：&#8194;</b>
+          <el-input
+            style="width: 300px; size: 'mini'"
+            v-model="form.position"
           ></el-input>
         </el-row>
         <el-row :gutter="20">
@@ -55,7 +71,7 @@
   </transition>
 </template>
   <script>
-import { addProject } from "@/api/projectList.js";
+import { addMember } from "@/api/memberList.js";
 
 export default {
   data() {
@@ -77,11 +93,13 @@ export default {
     saveData() {
       if (this.type == "添加") {
         let param = {
-          title: this.form.title,
-          context: this.form.context,
+          name: this.form.name,
+          grade: this.form.grade,
           picUrl: this.form.picUrl,
+          major: this.form.major,
+          position: this.form.position,
         };
-        addProject(param).then((res) => {
+        addMember(param).then((res) => {
           console.log(res);
           this.$message(res.data.message);
         });
@@ -89,8 +107,8 @@ export default {
       } else {
         var rn = [];
         rn.push(this.title);
-        this.$set(this.form, "project", rn);
-        addProject(this.form).then((res) => {
+        this.$set(this.form, "member", rn);
+        addMember(this.form).then((res) => {
           console.log(res);
           this.$message(res.data.message);
         });
@@ -101,9 +119,11 @@ export default {
     close() {
       this.$emit("closeDialog", false);
       this.form = {
-        title: "",
-        context: "",
+        name: "",
+        grade: "",
         picUrl: "",
+        major: "",
+        position: "",
       };
     },
   },

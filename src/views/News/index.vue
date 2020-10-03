@@ -175,10 +175,15 @@ export default {
       });
     },
 
-    changeCurrentPage(pageNum, pageSize) {
-      this.currentPage = pageNum;
-      this.$message(res.data.message);
-      getList().then((res) => {
+    changeCurrentPage() {
+      this.$axios({
+        url: "/werun/news/pageNews",
+        method: "GET",
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
         this.message = res.data.message;
         this.success = res.data.success;
 
@@ -192,6 +197,7 @@ export default {
         this.currentPage = res.data.currentPage;
         this.totalElement = res.data.totalElement;
         this.isMoreRecord = res.data.isMoreRecord;
+        this.$message(res.data.message);
         console.log(res);
         //this.totalElement = res.data.data.size;
       });

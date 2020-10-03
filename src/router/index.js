@@ -7,7 +7,7 @@ import homePage from '@/views/homePage/index.vue'
 import HomePicture from '@/views/HomePicture/index.vue'
 import News from '@/views/News/index.vue'
 import ProjectDisplay from '@/views/ProjectDisplay/index.vue'
-import ScientificResults from '@/views/ScientificResults/index.vue'
+import ScientificAchievement from '@/views/ScientificAchievement/index.vue'
 import TeamMember from '@/views/TeamMember/index.vue'
 
 Vue.use(Router)
@@ -16,7 +16,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect:'logIn'  //路由重定向
+      redirect: 'logIn'  //路由重定向
     },
     {
       path: '/logIn',
@@ -27,7 +27,7 @@ export default new Router({
       path: '/console',
       name: 'console',
       component: Console,
-      children:[
+      children: [
         {
           path: '/homePage',
           name: 'homePage',
@@ -49,9 +49,9 @@ export default new Router({
           component: ProjectDisplay,
         },
         {
-          path: '/ScientificResults',
-          name: 'ScientificResults',
-          component: ScientificResults,
+          path: '/ScientificAchievement',
+          name: 'ScientificAchievement',
+          component: ScientificAchievement,
         },
         {
           path: '/TeamMember',
