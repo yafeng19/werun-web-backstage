@@ -8,7 +8,7 @@ export function getList() {
     /*//get请求  请求数据以地址形式表示 拼接字符串
     url: "/system/manager/getManagerList?page=" + page + "&limit=" + limit + "&keyword=" + keyword,
     */
-    url: "werun/news/listNews",
+    url: "/news/listNews",
     headers: {
       "Content-Type": "application/json"
     },
@@ -34,7 +34,7 @@ export function editNewss(param) {
 export function addNews(param) {
   return service.request({
     method: "POST",
-    url: "/werun/news/addNews",
+    url: "/news/addNews",
     headers: {
       "Content-Type": "application/json"
     },
@@ -46,7 +46,7 @@ export function addNews(param) {
 export function deleteNews(id) {
   return service.request({
     method: "DELETE",
-    url: "/werun/news/deleteNews",
+    url: "/news/deleteNews",
     headers: {
       "Content-Type": "application/json"
     },

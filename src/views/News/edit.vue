@@ -62,7 +62,11 @@ export default {
     return {
       update_form: {},
       dialogFormVisible: false,
-      form: {},
+      form: {
+        title: "",
+        picUrl: "",
+        newsDate: "",
+      },
       formLabelWidth: "110px",
       type: "",
     };

@@ -89,6 +89,7 @@ export default {
       tableData: [],
       currentPage: 1,
       totalElement: 100,
+      /*
       tableData: [
         {
           title: "题目1",
@@ -105,7 +106,7 @@ export default {
           picUrl: "url3",
           newsDate: "2020-10-01",
         },
-      ],
+      ],*/
     };
   },
   components: { pageBar, editNews },
