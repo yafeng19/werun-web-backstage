@@ -1,4 +1,4 @@
-# werun_web
+# werun-web-backstage
 
 > A Vue.js project
 
