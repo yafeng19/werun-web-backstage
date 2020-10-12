@@ -44,8 +44,8 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="16" :offset="8">
-            <el-button style="width: 86px" @click="close">关闭</el-button>
-            <el-button style="width: 86px" type="primary" @click="saveData"
+            <el-button style="width: 86px" @click="cancle">关闭</el-button>
+            <el-button style="width: 86px" type="primary" @click="addNews"
               >保存</el-button
             >
           </el-col>
@@ -55,20 +55,17 @@
   </transition>
 </template>
   <script>
-import { addNews } from "@/api/newsList.js";
-
 export default {
   data() {
     return {
       update_form: {},
-      dialogFormVisible: false,
+      /*
       form: {
         title: "",
         picUrl: "",
         newsDate: "",
-      },
+      },*/
       formLabelWidth: "110px",
-      type: "",
     };
   },
   props: {
@@ -78,38 +75,32 @@ export default {
   },
 
   methods: {
-    saveData() {
-      if (this.type == "添加") {
-        let param = {
+    addNews() {
+      this.$axios({
+        url: "/news/addNews",
+        method: "POST",
+        params: {
           title: this.form.title,
           picUrl: this.form.picUrl,
           newsDate: this.form.newsDate,
-        };
-        addNews(param).then((res) => {
-          console.log(res);
-          this.$message(res.data.message);
-        });
-        this.close();
-      } else {
-        var rn = [];
-        rn.push(this.title);
-        this.$set(this.form, "news", rn);
-        addNews(this.form).then((res) => {
-          console.log(res);
-          this.$message(res.data.message);
-        });
-        this.close();
-      }
+          // context: this.form.context,
+          // briefIntro: this.form.briefIntro,
+        },
+      }).then((res) => {
+        console.log(res);
+        this.$message(res.data.message);
+        this.cancle();
+      });
     },
+  },
 
-    close() {
-      this.$emit("closeDialog", false);
-      this.form = {
-        title: "",
-        picUrl: "",
-        newsDate: "",
-      };
-    },
+  cancle() {
+    this.$emit("closeDialog", false);
+    this.form = {
+      title: "",
+      picUrl: "",
+      newsDate: "",
+    };
   },
 };
 </script>

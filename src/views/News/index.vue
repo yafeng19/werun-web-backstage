@@ -64,7 +64,7 @@
         @changePage="changeCurrentPage"
       />
     </div>
-    <editNews
+    <messa
       v-show="editVisible"
       :type="type"
       :form="edit_form"
@@ -74,21 +74,26 @@
 </template>
 
 <script>
-import { getList, deleteNews, addNews } from "@/api/newsList.js";
-import editNews from "./edit.vue";
+import messa from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
   data() {
     return {
       keyword: "",
-      edit_form: {},
       editVisible: false,
       pageSize: 5,
-      currentPage: 1,
-      tableData: [],
-      currentPage: 1,
+      totalPages: "",
       totalElement: 100,
+      currentPage: 1,
+      isMoreRecord: "",
+      tableData: {
+        title: "",
+        picUrl: "",
+        newsDate: "",
+      },
+      edit_form: {},
+      type: "",
       /*
       tableData: [
         {
@@ -109,37 +114,28 @@ export default {
       ],*/
     };
   },
-  components: { pageBar, editNews },
-  mounted() {
-    getList().then((res) => {
-      this.message = res.data.message;
-      this.success = res.data.success;
-
-      this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      console.log(res);
-      /*
-      this.tableData = res.data.data.list;
-      this.totalElement = res.data.data.size;
-      */
-    });
+  components: { pageBar, messa },
+  created() {
+    this.getList();
   },
-  watch: {
-    /*
-    keyword() {
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
 
-        //this.totalElement = res.data.data.size;
+  methods: {
+    getList() {
+      this.$axios({
+        url: "/news/listNews",
+        method: "GET",
+        params: {},
+      }).then((res) => {
+        this.tableData = res.data.data;
+        /*
+        this.title = res.data.data.title;
+        this.picUrl = res.data.data.picUrl;
+        this.newsDate = res.data.data.newsDate;
+        */
+        console.log(res);
       });
     },
-    */
-  },
-  methods: {
+
     add_news() {
       this.editVisible = true; //弹出窗口
       this.type = "添加";
@@ -148,10 +144,7 @@ export default {
     closeDialog(val) {
       getList().then((res) => {
         console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
         this.tableData = res.data.data;
-        //this.totalElement = res.data.data.total;
       });
       this.edit_form = {};
       this.editVisible = val;
@@ -171,52 +164,65 @@ export default {
         this.message = res.data.message;
         this.success = res.data.success;
         this.tableData = res.data.data;
-
-        //this.totalElement = res.data.data.size;
       });
     },
 
     changeCurrentPage() {
       this.$axios({
-        url: "/werun/news/pageNews",
+        url: "/news/pageNews",
         method: "GET",
         params: {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
         },
       }).then((res) => {
-        this.message = res.data.message;
-        this.success = res.data.success;
-
         this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      */
+
         this.totalPages = res.data.totalPages;
         this.currentPage = res.data.currentPage;
         this.totalElement = res.data.totalElement;
         this.isMoreRecord = res.data.isMoreRecord;
         this.$message(res.data.message);
         console.log(res);
-        //this.totalElement = res.data.data.size;
       });
     },
 
     deleteData(index, row) {
-      deleteNews(row.id).then((res) => {
+      this.$confirm("确认删除？")
+        .then((res) => {
+          deleteNews(row.id);
+          alert("test");
+        })
+        .catch(() => {
+          return;
+        });
+    },
+    deleteNews(itemId) {
+      this.$axios({
+        url: "/news/deleteNews",
+        method: "DELETE",
+        params: { id: itemId },
+      }).then((res) => {
+        this.getList();
         console.log(res);
         this.$message(res.data.message);
       });
+    },
+  },
+
+  watch: {
+    /*
+    keyword() {
       getList().then((res) => {
         console.log(res);
         this.message = res.data.message;
         this.success = res.data.success;
         this.tableData = res.data.data;
+
         //this.totalElement = res.data.data.size;
       });
     },
+    */
   },
 };
 </script>

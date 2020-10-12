@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import axios from 'axios'
 
 import LogIn from '@/views/logIn/LogIn.vue'
 import Console from '@/Layout/index.vue'
@@ -11,6 +12,7 @@ import ScientificAchievement from '@/views/ScientificAchievement/index.vue'
 import TeamMember from '@/views/TeamMember/index.vue'
 
 Vue.use(Router)
+Vue.prototype.$axios = axios;
 
 export default new Router({
   routes: [
