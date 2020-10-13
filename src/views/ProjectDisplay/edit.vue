@@ -61,10 +61,7 @@ export default {
   data() {
     return {
       update_form: {},
-      dialogFormVisible: false,
-      form: {},
       formLabelWidth: "110px",
-      type: "",
     };
   },
   props: {
@@ -74,6 +71,22 @@ export default {
   },
 
   methods: {
+    saveData() {
+      this.$axios({
+        url: "/proejct/addProject",
+        method: "POST",
+        data: {
+          title: this.form.title,
+          context: this.form.context,
+          picUrl: this.form.picUrl,
+        },
+      }).then((res) => {
+        console.log(res);
+        this.$message(res.data.message);
+      });
+      this.close();
+    },
+    /*
     saveData() {
       if (this.type == "添加") {
         let param = {
@@ -96,7 +109,7 @@ export default {
         });
         this.close();
       }
-    },
+    },*/
 
     close() {
       this.$emit("closeDialog", false);

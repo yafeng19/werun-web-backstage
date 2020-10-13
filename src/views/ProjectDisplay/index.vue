@@ -86,9 +86,14 @@ export default {
       editVisible: false,
       pageSize: 5,
       currentPage: 1,
-      tableData: [],
+      tableData: {
+        title: "",
+        context: "",
+        picUrl: "",
+      },
       currentPage: 1,
       totalElement: 100,
+      /*
       tableData: [
         {
           title: "项目1",
@@ -106,39 +111,31 @@ export default {
           picUrl: "url3",
         },
       ],
+      */
     };
   },
   components: { pageBar, editProject },
-  mounted() {
-    getList().then((res) => {
-      this.message = res.data.message;
-      this.success = res.data.success;
-
-      this.context = res.data.data.context;
-      this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      console.log(res);
-      /*
-      this.tableData = res.data.data.list;
-      this.totalElement = res.data.data.size;
-      */
-    });
+  created() {
+    this.getList();
   },
-  watch: {
-    /*
-    keyword() {
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
 
-        //this.totalElement = res.data.data.size;
+  methods: {
+    getList() {
+      this.$axios({
+        url: "/project/listProject",
+        method: "GET",
+        params: {},
+      }).then((res) => {
+        this.tableData = res.data.data;
+        /*
+        this.title = res.data.data.title;
+        this.picUrl = res.data.data.picUrl;
+        this.newsDate = res.data.data.newsDate;
+        */
+        console.log(res);
       });
     },
-    */
-  },
-  methods: {
+
     add_project() {
       this.editVisible = true; //弹出窗口
       this.type = "添加";
@@ -147,10 +144,7 @@ export default {
     closeDialog(val) {
       getList().then((res) => {
         console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
         this.tableData = res.data.data;
-        //this.totalElement = res.data.data.total;
       });
       this.edit_form = {};
       this.editVisible = val;
@@ -170,14 +164,12 @@ export default {
         this.message = res.data.message;
         this.success = res.data.success;
         this.tableData = res.data.data;
-
-        //this.totalElement = res.data.data.size;
       });
     },
 
     changeCurrentPage() {
       this.$axios({
-        url: "/werun/project/pageProject",
+        url: "/project/pageProject",
         method: "GET",
         params: {
           pageNum: this.pageNum,
@@ -204,18 +196,40 @@ export default {
     },
 
     deleteData(index, row) {
-      deleteProject(row.id).then((res) => {
+      this.$confirm("确认删除？")
+        .then((res) => {
+          this.deleteProject(row.id);
+          this.getList();
+        })
+        .catch(() => {
+          return;
+        });
+    },
+
+    deleteProject(itemId) {
+      this.$axios({
+        url: "/project/deleteProject",
+        method: "DELETE",
+        params: { id: itemId },
+      }).then((res) => {
         console.log(res);
         this.$message(res.data.message);
       });
+    },
+  },
+  watch: {
+    /*
+    keyword() {
       getList().then((res) => {
         console.log(res);
         this.message = res.data.message;
         this.success = res.data.success;
         this.tableData = res.data.data;
+
         //this.totalElement = res.data.data.size;
       });
     },
+    */
   },
 };
 </script>

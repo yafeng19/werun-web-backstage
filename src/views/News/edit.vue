@@ -21,31 +21,54 @@
             height: 1px;
           "
         ></div>
-        <el-row class="full-row">
-          <b class="sub-title">新闻标题：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.title"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">新闻标题：</div>
+            <el-input
+              style="width: 250px; size: 'mini'"
+              v-model="form.title"
+            ></el-input>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">新闻图片：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.picUrl"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">新闻图片：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.picUrl"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">新闻时间：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.newsDate"
+            ></el-input>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">新闻简介：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.briefIntro"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">新闻时间：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.newsDate"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="20" :offset="1">
+            <div class="sub-title">正文：</div>
+            <el-input
+              class="resizeNone"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              style="width: 500px"
+              v-model="form.context"
+            ></el-input>
+          </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="16" :offset="8">
-            <el-button style="width: 86px" @click="cancle">关闭</el-button>
-            <el-button style="width: 86px" type="primary" @click="addNews"
+            <el-button style="width: 86px" @click="close">关闭</el-button>
+            <el-button style="width: 86px" type="primary" @click="saveData"
               >保存</el-button
             >
           </el-col>
@@ -55,17 +78,15 @@
   </transition>
 </template>
   <script>
+//import { addNews } from "@/api/newsList.js";
 export default {
   data() {
     return {
       update_form: {},
-      /*
-      form: {
-        title: "",
-        picUrl: "",
-        newsDate: "",
-      },*/
       formLabelWidth: "110px",
+      dialogFormVisible: false,
+      form: {},
+      type: "",
     };
   },
   props: {
@@ -75,32 +96,52 @@ export default {
   },
 
   methods: {
-    addNews() {
+    saveData() {
       this.$axios({
         url: "/news/addNews",
         method: "POST",
-        params: {
+        data: {
           title: this.form.title,
           picUrl: this.form.picUrl,
           newsDate: this.form.newsDate,
-          // context: this.form.context,
-          // briefIntro: this.form.briefIntro,
+          //context: this.form.context,
+          //briefIntro: this.form.briefIntro,
         },
       }).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.$message(res.data.message);
-        this.cancle();
+        this.$emit("confirm");
       });
-    },
-  },
+    } /*
+    saveData() {
+      if (this.type == "添加") {
+        let param = {
+          title: this.form.title,
+          picUrl: this.form.picUrl,
+          newsDate: this.form.newsDate,
+        };
+        addNews(param).then((res) => {
+          console.log(res);
+          this.$message(res.data.message);
+        });
+        this.close();
+      } else {
+        addNews(this.form).then((res) => {
+          console.log(res);
+          this.$message(res.data.message);
+        });
+        this.close();
+      }
+    },*/,
 
-  cancle() {
-    this.$emit("closeDialog", false);
-    this.form = {
-      title: "",
-      picUrl: "",
-      newsDate: "",
-    };
+    close() {
+      this.$emit("closeDialog", false);
+      this.form = {
+        title: "",
+        picUrl: "",
+        newsDate: "",
+      };
+    },
   },
 };
 </script>
@@ -129,14 +170,15 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
-.full-row {
-  margin-top: 25px;
-  margin-bottom: 25px;
-  text-align: center;
-}
+
 .sub-title {
   font-weight: normal;
   font-size: 15px;
+}
+</style>
+<style>
+.resizeNone input.el-input__inner {
+  resize: none;
 }
 </style>
 

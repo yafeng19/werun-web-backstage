@@ -64,17 +64,19 @@
         @changePage="changeCurrentPage"
       />
     </div>
-    <messa
+    <editNews
       v-show="editVisible"
       :type="type"
       :form="edit_form"
       @closeDialog="this.closeDialog"
+      @confirm="this.confirm"
     />
   </div>
 </template>
 
 <script>
-import messa from "./edit.vue";
+//import { addNews } from "@/api/newsList.js";
+import editNews from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
@@ -88,50 +90,28 @@ export default {
       currentPage: 1,
       isMoreRecord: "",
       tableData: {
+        id: "",
         title: "",
         picUrl: "",
         newsDate: "",
+        context: "",
+        briefIntro: "",
       },
       edit_form: {},
       type: "",
-      /*
-      tableData: [
-        {
-          title: "题目1",
-          picUrl: "url1",
-          newsDate: "2020-10-01",
-        },
-        {
-          title: "题目2",
-          picUrl: "url2",
-          newsDate: "2020-10-01",
-        },
-        {
-          title: "题目3",
-          picUrl: "url3",
-          newsDate: "2020-10-01",
-        },
-      ],*/
     };
   },
-  components: { pageBar, messa },
-  created() {
+  components: { pageBar, editNews },
+  mounted() {
     this.getList();
   },
-
   methods: {
     getList() {
       this.$axios({
         url: "/news/listNews",
         method: "GET",
-        params: {},
       }).then((res) => {
         this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-        this.picUrl = res.data.data.picUrl;
-        this.newsDate = res.data.data.newsDate;
-        */
         console.log(res);
       });
     },
@@ -142,12 +122,13 @@ export default {
     },
 
     closeDialog(val) {
-      getList().then((res) => {
-        console.log(res);
-        this.tableData = res.data.data;
-      });
       this.edit_form = {};
       this.editVisible = val;
+    },
+
+    confirm() {
+      this.getList();
+      this.closeDialog(false);
     },
 
     handleEdit(index, row) {
@@ -188,25 +169,18 @@ export default {
     },
 
     deleteData(index, row) {
-      this.$confirm("确认删除？")
-        .then((res) => {
-          deleteNews(row.id);
-          alert("test");
-        })
-        .catch(() => {
-          return;
-        });
-    },
-    deleteNews(itemId) {
       this.$axios({
-        url: "/news/deleteNews",
         method: "DELETE",
-        params: { id: itemId },
+        url: "/news/deleteNews",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { id: row.id },
       }).then((res) => {
-        this.getList();
         console.log(res);
         this.$message(res.data.message);
       });
+      this.getList();
     },
   },
 
