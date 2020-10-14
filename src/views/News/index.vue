@@ -40,6 +40,8 @@
         <el-table-column prop="title" label="新闻标题"></el-table-column>
         <el-table-column prop="picUrl" label="照片地址"></el-table-column>
         <el-table-column prop="newsDate" label="新闻时间"></el-table-column>
+        <el-table-column prop="briefIntro" label="新闻简介"></el-table-column>
+        <el-table-column prop="context" label="正文"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -58,10 +60,11 @@
         </el-table-column>
       </el-table>
       <pageBar
-        style="margin-top: 25px; margin-left: 250px"
+        style="margin: 25px auto"
         :totalnum="totalElement"
+        :pageSize="pageSize"
         @changeSize="changeSize"
-        @changePage="changeCurrentPage"
+        @changePage="getList"
       />
     </div>
     <editNews
@@ -73,9 +76,7 @@
     />
   </div>
 </template>
-
 <script>
-//import { addNews } from "@/api/newsList.js";
 import editNews from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
@@ -85,12 +86,12 @@ export default {
       keyword: "",
       editVisible: false,
       pageSize: 5,
+      pageNum: 1,
       totalPages: "",
       totalElement: 100,
       currentPage: 1,
       isMoreRecord: "",
       tableData: {
-        id: "",
         title: "",
         picUrl: "",
         newsDate: "",
@@ -99,20 +100,49 @@ export default {
       },
       edit_form: {},
       type: "",
+      itemId: "",
     };
   },
   components: { pageBar, editNews },
   mounted() {
-    this.getList();
+    this.getList(this.pageNum);
   },
   methods: {
+    /*
     getList() {
       this.$axios({
         url: "/news/listNews",
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }).then((res) => {
         this.tableData = res.data.data;
-        console.log(res);
+        //console.log(res);
+      });
+    },
+    //changeCurrentPage() 
+*/
+    getList(val) {
+      this.pageNum = val;
+      this.$axios({
+        url: "/news/pageNews?pageNum=" + this.pageNum,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        this.totalPages = res.data.totalPages;
+        this.currentPage = res.data.currentPage;
+        this.totalElement = res.data.totalElement;
+        this.isMoreRecord = res.data.isMoreRecord;
+        //this.$message(res.data.message);
+        //console.log(res);
       });
     },
 
@@ -127,7 +157,7 @@ export default {
     },
 
     confirm() {
-      this.getList();
+      this.getList(this.pageNum);
       this.closeDialog(false);
     },
 
@@ -136,36 +166,12 @@ export default {
       console.log(this.edit_form);
       this.editVisible = true;
       this.type = "编辑";
+      this.itemId = row.id;
     },
 
     changeSize(val) {
       this.pageSize = val;
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-      });
-    },
-
-    changeCurrentPage() {
-      this.$axios({
-        url: "/news/pageNews",
-        method: "GET",
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then((res) => {
-        this.tableData = res.data.data;
-
-        this.totalPages = res.data.totalPages;
-        this.currentPage = res.data.currentPage;
-        this.totalElement = res.data.totalElement;
-        this.isMoreRecord = res.data.isMoreRecord;
-        this.$message(res.data.message);
-        console.log(res);
-      });
+      this.getList(this.pageNum);
     },
 
     deleteData(index, row) {
@@ -180,7 +186,7 @@ export default {
         console.log(res);
         this.$message(res.data.message);
       });
-      this.getList();
+      this.getList(this.pageNum);
     },
   },
 

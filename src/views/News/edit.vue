@@ -77,8 +77,7 @@
     </div>
   </transition>
 </template>
-  <script>
-//import { addNews } from "@/api/newsList.js";
+<script>
 export default {
   data() {
     return {
@@ -93,46 +92,54 @@ export default {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
+    itemId: "",
   },
-
+  created() {},
   methods: {
     saveData() {
-      this.$axios({
-        url: "/news/addNews",
-        method: "POST",
-        data: {
-          title: this.form.title,
-          picUrl: this.form.picUrl,
-          newsDate: this.form.newsDate,
-          //context: this.form.context,
-          //briefIntro: this.form.briefIntro,
-        },
-      }).then((res) => {
-        // console.log(res);
-        this.$message(res.data.message);
-        this.$emit("confirm");
-      });
-    } /*
-    saveData() {
       if (this.type == "添加") {
-        let param = {
-          title: this.form.title,
-          picUrl: this.form.picUrl,
-          newsDate: this.form.newsDate,
-        };
-        addNews(param).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/news/addNews",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: {
+            title: this.form.title,
+            picUrl: this.form.picUrl,
+            newsDate: this.form.newsDate,
+            context: this.form.context,
+            briefIntro: this.form.briefIntro,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       } else {
-        addNews(this.form).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/news/updateNews",
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          params: {
+            id: this.itemId,
+          },
+          data: {
+            title: this.form.title,
+            picUrl: this.form.picUrl,
+            newsDate: this.form.newsDate,
+            context: this.form.context,
+            briefIntro: this.form.briefIntro,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       }
-    },*/,
+    },
 
     close() {
       this.$emit("closeDialog", false);
@@ -170,14 +177,13 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
-
 .sub-title {
   font-weight: normal;
   font-size: 15px;
 }
 </style>
 <style>
-.resizeNone input.el-input__inner {
+.resizeNone >>> .el-input__inner {
   resize: none;
 }
 </style>
