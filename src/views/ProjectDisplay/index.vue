@@ -9,7 +9,7 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_project"
+      @click="addItem"
       >添加项目</el-button
     >
     <div class="search">
@@ -36,10 +36,11 @@
         "
       >
         <!-- @selection-change="handleSelectionChange" -->
-
+        <el-table-column prop="id" label="id"></el-table-column>
         <el-table-column prop="title" label="项目名称"></el-table-column>
         <el-table-column prop="context" label="项目介绍"></el-table-column>
-        <el-table-column prop="picUrl" label="项目照片"></el-table-column>
+        <el-table-column prop="briefIntro" label="项目简介"></el-table-column>
+        <el-table-column prop="picUrl" label="照片地址"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -58,96 +59,104 @@
         </el-table-column>
       </el-table>
       <pageBar
-        style="margin-top: 25px; margin-left: 250px"
+        style="margin: 25px auto"
         :totalnum="totalElement"
+        :pageSize="pageSize"
         @changeSize="changeSize"
-        @changePage="changeCurrentPage"
+        @changePage="getList"
       />
     </div>
-    <editProject
+    <edit
       v-show="editVisible"
       :type="type"
       :form="edit_form"
       @closeDialog="this.closeDialog"
+      @confirm="this.confirm"
     />
   </div>
 </template>
-
 <script>
-import { getList, deleteProject, addProject } from "@/api/projectList.js";
-import editProject from "./edit.vue";
+import edit from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
   data() {
     return {
       keyword: "",
-      edit_form: {},
       editVisible: false,
       pageSize: 5,
+      pageNum: 1,
+      totalPages: "",
+      totalElement: 100,
       currentPage: 1,
+      isMoreRecord: "",
       tableData: {
         title: "",
-        context: "",
         picUrl: "",
+        context: "",
+        briefIntro: "",
       },
-      currentPage: 1,
-      totalElement: 100,
-      /*
-      tableData: [
-        {
-          title: "项目1",
-          context: "介绍1",
-          picUrl: "url1",
-        },
-        {
-          title: "项目2",
-          context: "介绍2",
-          picUrl: "url2",
-        },
-        {
-          title: "项目3",
-          context: "介绍3",
-          picUrl: "url3",
-        },
-      ],
-      */
+      edit_form: {},
+      type: "",
+      itemId: "",
     };
   },
-  components: { pageBar, editProject },
-  created() {
-    this.getList();
+  components: { pageBar, edit },
+  mounted() {
+    this.getList(this.pageNum);
   },
-
   methods: {
+    /*
     getList() {
       this.$axios({
         url: "/project/listProject",
         method: "GET",
-        params: {},
+        headers: {
+          "Content-Type": "application/json",
+        },
       }).then((res) => {
         this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-        this.picUrl = res.data.data.picUrl;
-        this.newsDate = res.data.data.newsDate;
-        */
-        console.log(res);
+        //console.log(res);
+      });
+    },
+    //changeCurrentPage() 
+*/
+    getList(val) {
+      this.pageNum = val;
+      this.$axios({
+        url: "/project/pageProject?pageNum=" + this.pageNum,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        this.totalPages = res.data.totalPages;
+        this.currentPage = res.data.currentPage;
+        this.totalElement = res.data.totalElement;
+        this.isMoreRecord = res.data.isMoreRecord;
+        //this.$message(res.data.message);
+        //console.log(res);
       });
     },
 
-    add_project() {
+    addItem() {
       this.editVisible = true; //弹出窗口
       this.type = "添加";
     },
 
     closeDialog(val) {
-      getList().then((res) => {
-        console.log(res);
-        this.tableData = res.data.data;
-      });
       this.edit_form = {};
       this.editVisible = val;
+    },
+
+    confirm() {
+      this.getList(this.pageNum);
+      this.closeDialog(false);
     },
 
     handleEdit(index, row) {
@@ -155,68 +164,30 @@ export default {
       console.log(this.edit_form);
       this.editVisible = true;
       this.type = "编辑";
+      this.itemId = row.id;
     },
 
     changeSize(val) {
       this.pageSize = val;
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-      });
-    },
-
-    changeCurrentPage() {
-      this.$axios({
-        url: "/project/pageProject",
-        method: "GET",
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then((res) => {
-        this.message = res.data.message;
-        this.success = res.data.success;
-
-        this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      */
-        this.totalPages = res.data.totalPages;
-        this.currentPage = res.data.currentPage;
-        this.totalElement = res.data.totalElement;
-        this.isMoreRecord = res.data.isMoreRecord;
-        this.$message(res.data.message);
-        console.log(res);
-        //this.totalElement = res.data.data.size;
-      });
+      this.getList(this.pageNum);
     },
 
     deleteData(index, row) {
-      this.$confirm("确认删除？")
-        .then((res) => {
-          this.deleteProject(row.id);
-          this.getList();
-        })
-        .catch(() => {
-          return;
-        });
-    },
-
-    deleteProject(itemId) {
       this.$axios({
-        url: "/project/deleteProject",
         method: "DELETE",
-        params: { id: itemId },
+        url: "/project/deleteProject",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { id: row.id },
       }).then((res) => {
         console.log(res);
         this.$message(res.data.message);
       });
+      this.getList(this.pageNum);
     },
   },
+
   watch: {
     /*
     keyword() {

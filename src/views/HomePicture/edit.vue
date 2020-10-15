@@ -48,8 +48,6 @@
   </transition>
 </template>
   <script>
-import { addRotationChart } from "@/api/rotationChartList.js";
-
 export default {
   data() {
     return {
@@ -64,29 +62,46 @@ export default {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
+    itemId: "",
   },
 
   methods: {
     saveData() {
       if (this.type == "添加") {
-        let param = {
-          name: this.form.name,
-          picUrl: this.form.picUrl,
-        };
-        addRotationChart(param).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/rotationChart/addRotationChart",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: {
+            name: this.form.name,
+            picUrl: this.form.picUrl,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       } else {
-        var rn = [];
-        rn.push(this.title);
-        this.$set(this.form, "rotationChart", rn);
-        addRotationChart(this.form).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/rotationChart/updateRotationChart",
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          params: {
+            id: this.itemId,
+          },
+          data: {
+            name: this.form.name,
+            picUrl: this.form.picUrl,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       }
     },
 

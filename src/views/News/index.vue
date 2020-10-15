@@ -9,7 +9,7 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_news"
+      @click="addItem"
       >添加新闻</el-button
     >
     <div class="search">
@@ -36,9 +36,9 @@
         "
       >
         <!-- @selection-change="handleSelectionChange" -->
-
+        <el-table-column prop="id" label="id"></el-table-column>
         <el-table-column prop="title" label="新闻标题"></el-table-column>
-        <el-table-column prop="picUrl" label="照片地址"></el-table-column>
+        <el-table-column prop="picUrl" label="图片地址"></el-table-column>
         <el-table-column prop="newsDate" label="新闻时间"></el-table-column>
         <el-table-column prop="briefIntro" label="新闻简介"></el-table-column>
         <el-table-column prop="context" label="正文"></el-table-column>
@@ -67,7 +67,7 @@
         @changePage="getList"
       />
     </div>
-    <editNews
+    <edit
       v-show="editVisible"
       :type="type"
       :form="edit_form"
@@ -77,7 +77,7 @@
   </div>
 </template>
 <script>
-import editNews from "./edit.vue";
+import edit from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
@@ -103,7 +103,7 @@ export default {
       itemId: "",
     };
   },
-  components: { pageBar, editNews },
+  components: { pageBar, edit },
   mounted() {
     this.getList(this.pageNum);
   },
@@ -146,7 +146,7 @@ export default {
       });
     },
 
-    add_news() {
+    addItem() {
       this.editVisible = true; //弹出窗口
       this.type = "添加";
     },

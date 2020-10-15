@@ -9,7 +9,7 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_scientificAchievement"
+      @click="addItem"
       >添加成果</el-button
     >
     <div class="search">
@@ -36,10 +36,11 @@
         "
       >
         <!-- @selection-change="handleSelectionChange" -->
-
-        <el-table-column prop="title" label="成果标题"></el-table-column>
-        <el-table-column prop="picUrl" label="照片地址"></el-table-column>
-        <el-table-column prop="context" label="项目内容"></el-table-column>
+        <el-table-column prop="id" label="id"></el-table-column>
+        <el-table-column prop="title" label="成果名称"></el-table-column>
+        <el-table-column prop="context" label="成果介绍"></el-table-column>
+        <el-table-column prop="briefIntro" label="成果简介"></el-table-column>
+        <el-table-column prop="picUrl" label="图片地址"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -58,76 +59,137 @@
         </el-table-column>
       </el-table>
       <pageBar
-        style="margin-top: 25px; margin-left: 250px"
+        style="margin: 25px auto"
         :totalnum="totalElement"
+        :pageSize="pageSize"
         @changeSize="changeSize"
-        @changePage="changeCurrentPage"
+        @changePage="getList"
       />
     </div>
-    <editScientificAchievement
+    <edit
       v-show="editVisible"
       :type="type"
       :form="edit_form"
       @closeDialog="this.closeDialog"
+      @confirm="this.confirm"
     />
   </div>
 </template>
-
 <script>
-import {
-  getList,
-  deleteScientificAchievement,
-  addScientificAchievement,
-} from "@/api/scientificAchievementList.js";
-import editScientificAchievement from "./edit.vue";
+import edit from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
   data() {
     return {
       keyword: "",
-      edit_form: {},
       editVisible: false,
       pageSize: 5,
-      currentPage: 1,
-      tableData: [],
-      currentPage: 1,
+      pageNum: 1,
+      totalPages: "",
       totalElement: 100,
-      tableData: [
-        {
-          title: "成果1",
-          picUrl: "url1",
-          context: "内容1",
-        },
-        {
-          title: "成果2",
-          picUrl: "url2",
-          context: "内容2",
-        },
-        {
-          title: "成果3",
-          picUrl: "url3",
-          context: "内容3",
-        },
-      ],
+      currentPage: 1,
+      isMoreRecord: "",
+      tableData: {
+        title: "",
+        picUrl: "",
+        context: "",
+        briefIntro: "",
+      },
+      edit_form: {},
+      type: "",
+      itemId: "",
     };
   },
-  components: { pageBar, editScientificAchievement },
+  components: { pageBar, edit },
   mounted() {
-    getList().then((res) => {
-      this.message = res.data.message;
-      this.success = res.data.success;
-
-      this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.context = res.data.data.context;
-      console.log(res);
-      /*
-      this.tableData = res.data.data.list;
-      this.totalElement = res.data.data.size;
-      */
-    });
+    this.getList(this.pageNum);
   },
+  methods: {
+    /*
+    getList() {
+      this.$axios({
+        url: "/scientificAchievement/listScientificAchievement",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        //console.log(res);
+      });
+    },
+    //changeCurrentPage() 
+*/
+    getList(val) {
+      this.pageNum = val;
+      this.$axios({
+        url:
+          "/scientificAchievement/pageScientificAchievement?pageNum=" +
+          this.pageNum,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        this.totalPages = res.data.totalPages;
+        this.currentPage = res.data.currentPage;
+        this.totalElement = res.data.totalElement;
+        this.isMoreRecord = res.data.isMoreRecord;
+        //this.$message(res.data.message);
+        //console.log(res);
+      });
+    },
+
+    addItem() {
+      this.editVisible = true; //弹出窗口
+      this.type = "添加";
+    },
+
+    closeDialog(val) {
+      this.edit_form = {};
+      this.editVisible = val;
+    },
+
+    confirm() {
+      this.getList(this.pageNum);
+      this.closeDialog(false);
+    },
+
+    handleEdit(index, row) {
+      this.edit_form = row;
+      console.log(this.edit_form);
+      this.editVisible = true;
+      this.type = "编辑";
+      this.itemId = row.id;
+    },
+
+    changeSize(val) {
+      this.pageSize = val;
+      this.getList(this.pageNum);
+    },
+
+    deleteData(index, row) {
+      this.$axios({
+        method: "DELETE",
+        url: "/scientificAchievement/deleteScientificAchievement",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { id: row.id },
+      }).then((res) => {
+        console.log(res);
+        this.$message(res.data.message);
+      });
+      this.getList(this.pageNum);
+    },
+  },
+
   watch: {
     /*
     keyword() {
@@ -141,85 +203,6 @@ export default {
       });
     },
     */
-  },
-  methods: {
-    add_scientificAchievement() {
-      this.editVisible = true; //弹出窗口
-      this.type = "添加";
-    },
-
-    closeDialog(val) {
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.total;
-      });
-      this.edit_form = {};
-      this.editVisible = val;
-    },
-
-    handleEdit(index, row) {
-      this.edit_form = row;
-      console.log(this.edit_form);
-      this.editVisible = true;
-      this.type = "编辑";
-    },
-
-    changeSize(val) {
-      this.pageSize = val;
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    changeCurrentPage() {
-      this.$axios({
-        url: "/werun/scientificAchievement/pageScientificAchievement",
-        method: "GET",
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then((res) => {
-        this.message = res.data.message;
-        this.success = res.data.success;
-
-        this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      */
-        this.totalPages = res.data.totalPages;
-        this.currentPage = res.data.currentPage;
-        this.totalElement = res.data.totalElement;
-        this.isMoreRecord = res.data.isMoreRecord;
-        this.$message(res.data.message);
-        console.log(res);
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    deleteData(index, row) {
-      deleteScientificAchievement(row.id).then((res) => {
-        console.log(res);
-        this.$message(res.data.message);
-      });
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.size;
-      });
-    },
   },
 };
 </script>

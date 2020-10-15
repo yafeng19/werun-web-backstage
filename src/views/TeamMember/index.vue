@@ -9,7 +9,7 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_member"
+      @click="addItem"
       >添加成员</el-button
     >
     <div class="search">
@@ -36,12 +36,13 @@
         "
       >
         <!-- @selection-change="handleSelectionChange" -->
-
+        <el-table-column prop="id" label="id"></el-table-column>
         <el-table-column prop="name" label="成员姓名"></el-table-column>
         <el-table-column prop="grade" label="成员年级"></el-table-column>
-        <el-table-column prop="picUrl" label="照片地址"></el-table-column>
+        <el-table-column prop="picUrl" label="图片地址"></el-table-column>
         <el-table-column prop="major" label="专业"></el-table-column>
         <el-table-column prop="position" label="职务/方向"></el-table-column>
+        <el-table-column prop="context" label="简介"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -60,73 +61,137 @@
         </el-table-column>
       </el-table>
       <pageBar
-        style="margin-top: 25px; margin-left: 250px"
+        style="margin: 25px auto"
         :totalnum="totalElement"
+        :pageSize="pageSize"
         @changeSize="changeSize"
-        @changePage="changeCurrentPage"
+        @changePage="getList"
       />
     </div>
-    <editMember
+    <edit
       v-show="editVisible"
       :type="type"
       :form="edit_form"
       @closeDialog="this.closeDialog"
+      @confirm="this.confirm"
     />
   </div>
 </template>
-
 <script>
-import { getList, deleteMember, addMember } from "@/api/memberList.js";
-import editMember from "./edit.vue";
+import edit from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
   data() {
     return {
       keyword: "",
-      edit_form: {},
       editVisible: false,
       pageSize: 5,
-      currentPage: 1,
-      tableData: [],
-      currentPage: 1,
+      pageNum: 1,
+      totalPages: "",
       totalElement: 100,
-      tableData: [
-        {
-          name: "姓名1",
-          grade: "年级1",
-          picUrl: "照片1",
-          major: "专业1",
-          position: "方向1",
-        },
-        {
-          name: "姓名2",
-          grade: "年级2",
-          picUrl: "照片2",
-          major: "专业2",
-          position: "方向2",
-        },
-      ],
+      currentPage: 1,
+      isMoreRecord: "",
+      tableData: {
+        name: "",
+        grade: "",
+        picUrl: "",
+        context: "",
+        majorId: "",
+        positionId: "",
+      },
+      edit_form: {},
+      type: "",
+      itemId: "",
     };
   },
-  components: { pageBar, editMember },
+  components: { pageBar, edit },
   mounted() {
-    getList().then((res) => {
-      this.message = res.data.message;
-      this.success = res.data.success;
-
-      this.name = res.data.data.name;
-      this.grade = res.data.data.grade;
-      this.picUrl = res.data.data.picUrl;
-      this.major = res.data.data.major;
-      this.position = res.data.data.position;
-      console.log(res);
-      /*
-      this.tableData = res.data.data.list;
-      this.totalElement = res.data.data.size;
-      */
-    });
+    this.getList(this.pageNum);
   },
+  methods: {
+    /*
+    getList() {
+      this.$axios({
+        url: "/member/listMember",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        //console.log(res);
+      });
+    },
+    //changeCurrentPage() 
+*/
+    getList(val) {
+      this.pageNum = val;
+      this.$axios({
+        url: "/member/pageMember?pageNum=" + this.pageNum,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        this.totalPages = res.data.totalPages;
+        this.currentPage = res.data.currentPage;
+        this.totalElement = res.data.totalElement;
+        this.isMoreRecord = res.data.isMoreRecord;
+        //this.$message(res.data.message);
+        //console.log(res);
+      });
+    },
+
+    addItem() {
+      this.editVisible = true; //弹出窗口
+      this.type = "添加";
+    },
+
+    closeDialog(val) {
+      this.edit_form = {};
+      this.editVisible = val;
+    },
+
+    confirm() {
+      this.getList(this.pageNum);
+      this.closeDialog(false);
+    },
+
+    handleEdit(index, row) {
+      this.edit_form = row;
+      console.log(this.edit_form);
+      this.editVisible = true;
+      this.type = "编辑";
+      this.itemId = row.id;
+    },
+
+    changeSize(val) {
+      this.pageSize = val;
+      this.getList(this.pageNum);
+    },
+
+    deleteData(index, row) {
+      this.$axios({
+        method: "DELETE",
+        url: "/member/deleteMember",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { id: row.id },
+      }).then((res) => {
+        console.log(res);
+        this.$message(res.data.message);
+      });
+      this.getList(this.pageNum);
+    },
+  },
+
   watch: {
     /*
     keyword() {
@@ -140,85 +205,6 @@ export default {
       });
     },
     */
-  },
-  methods: {
-    add_member() {
-      this.editVisible = true; //弹出窗口
-      this.type = "添加";
-    },
-
-    closeDialog(val) {
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.total;
-      });
-      this.edit_form = {};
-      this.editVisible = val;
-    },
-
-    handleEdit(index, row) {
-      this.edit_form = row;
-      console.log(this.edit_form);
-      this.editVisible = true;
-      this.type = "编辑";
-    },
-
-    changeSize(val) {
-      this.pageSize = val;
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    changeCurrentPage() {
-      this.$axios({
-        url: "/werun/member/pageMember",
-        method: "GET",
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then((res) => {
-        this.message = res.data.message;
-        this.success = res.data.success;
-
-        this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      */
-        this.totalPages = res.data.totalPages;
-        this.currentPage = res.data.currentPage;
-        this.totalElement = res.data.totalElement;
-        this.isMoreRecord = res.data.isMoreRecord;
-        this.$message(res.data.message);
-        console.log(res);
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    deleteData(index, row) {
-      deleteMember(row.id).then((res) => {
-        console.log(res);
-        this.$message(res.data.message);
-      });
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.size;
-      });
-    },
   },
 };
 </script>

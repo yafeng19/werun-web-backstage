@@ -21,42 +21,58 @@
             height: 1px;
           "
         ></div>
-        <el-row class="full-row">
-          <b class="sub-title">成员姓名：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.name"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">姓名：</div>
+            <el-input
+              style="width: 250px; size: 'mini'"
+              v-model="form.name"
+            ></el-input>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">年级：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.grade"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">成员年级：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.grade"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">专业id：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.majorId"
+            ></el-input>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">职务id：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.positionId"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">照片地址：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.picUrl"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">照片地址：</div>
+            <el-input
+              style="width: 500px; size: 'mini'"
+              v-model="form.picUrl"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title"
-            >专&#8194;&#8194;&#8194;&#8194;业：&#8194;&#8194;</b
-          >
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.major"
-          ></el-input>
-        </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">职务/方向：&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.position"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="20" :offset="1">
+            <div class="sub-title">成员简介：</div>
+            <el-input
+              class="resizeNone"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              style="width: 500px"
+              v-model="form.context"
+            ></el-input>
+          </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="16" :offset="8">
@@ -70,16 +86,14 @@
     </div>
   </transition>
 </template>
-  <script>
-import { addMember } from "@/api/memberList.js";
-
+<script>
 export default {
   data() {
     return {
       update_form: {},
+      formLabelWidth: "110px",
       dialogFormVisible: false,
       form: {},
-      formLabelWidth: "110px",
       type: "",
     };
   },
@@ -87,32 +101,54 @@ export default {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
+    itemId: "",
   },
-
+  created() {},
   methods: {
     saveData() {
       if (this.type == "添加") {
-        let param = {
-          name: this.form.name,
-          grade: this.form.grade,
-          picUrl: this.form.picUrl,
-          major: this.form.major,
-          position: this.form.position,
-        };
-        addMember(param).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/member/addMember",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: {
+            name: this.form.name,
+            grade: this.form.grade,
+            picUrl: this.form.picUrl,
+            context: this.form.context,
+            majorId: this.form.majorId,
+            positionId: this.form.positionId,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       } else {
-        var rn = [];
-        rn.push(this.title);
-        this.$set(this.form, "member", rn);
-        addMember(this.form).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/member/updateMember",
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          params: {
+            id: this.itemId,
+          },
+          data: {
+            name: this.form.name,
+            grade: this.form.grade,
+            picUrl: this.form.picUrl,
+            context: this.form.context,
+            majorId: this.form.majorId,
+            positionId: this.form.positionId,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       }
     },
 
@@ -122,8 +158,9 @@ export default {
         name: "",
         grade: "",
         picUrl: "",
-        major: "",
-        position: "",
+        context: "",
+        majorId: "",
+        positionId: "",
       };
     },
   },
@@ -154,14 +191,14 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
-.full-row {
-  margin-top: 25px;
-  margin-bottom: 25px;
-  text-align: center;
-}
 .sub-title {
   font-weight: normal;
   font-size: 15px;
+}
+</style>
+<style>
+.resizeNone >>> .el-input__inner {
+  resize: none;
 }
 </style>
 

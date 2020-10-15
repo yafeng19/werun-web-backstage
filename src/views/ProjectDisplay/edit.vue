@@ -21,26 +21,42 @@
             height: 1px;
           "
         ></div>
-        <el-row class="full-row">
-          <b class="sub-title">项目标题：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.title"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">项目名称：</div>
+            <el-input
+              style="width: 250px; size: 'mini'"
+              v-model="form.title"
+            ></el-input>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">图片地址：</div>
+            <el-input
+              style="width: 240px; size: 'mini'"
+              v-model="form.picUrl"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">项目介绍：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.context"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="10" :offset="1">
+            <div class="sub-title">项目简介：</div>
+            <el-input
+              style="width: 500px; size: 'mini'"
+              v-model="form.briefIntro"
+            ></el-input>
+          </el-col>
         </el-row>
-        <el-row class="full-row">
-          <b class="sub-title">项目照片：&#8194;&#8194;</b>
-          <el-input
-            style="width: 300px; size: 'mini'"
-            v-model="form.picUrl"
-          ></el-input>
+        <el-row :gutter="20">
+          <el-col :span="20" :offset="1">
+            <div class="sub-title">项目介绍：</div>
+            <el-input
+              class="resizeNone"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              style="width: 500px"
+              v-model="form.context"
+            ></el-input>
+          </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="16" :offset="8">
@@ -54,69 +70,75 @@
     </div>
   </transition>
 </template>
-  <script>
-import { addProject } from "@/api/projectList.js";
-
+<script>
 export default {
   data() {
     return {
       update_form: {},
       formLabelWidth: "110px",
+      dialogFormVisible: false,
+      form: {},
+      type: "",
     };
   },
   props: {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
+    itemId: "",
   },
-
+  created() {},
   methods: {
     saveData() {
-      this.$axios({
-        url: "/proejct/addProject",
-        method: "POST",
-        data: {
-          title: this.form.title,
-          context: this.form.context,
-          picUrl: this.form.picUrl,
-        },
-      }).then((res) => {
-        console.log(res);
-        this.$message(res.data.message);
-      });
-      this.close();
-    },
-    /*
-    saveData() {
       if (this.type == "添加") {
-        let param = {
-          title: this.form.title,
-          context: this.form.context,
-          picUrl: this.form.picUrl,
-        };
-        addProject(param).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/project/addProject",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: {
+            title: this.form.title,
+            context: this.form.context,
+            briefIntro: this.form.briefIntro,
+            picUrl: this.form.picUrl,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       } else {
-        var rn = [];
-        rn.push(this.title);
-        this.$set(this.form, "project", rn);
-        addProject(this.form).then((res) => {
-          console.log(res);
+        this.$axios({
+          url: "/proejct/updateProject",
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          params: {
+            id: this.itemId,
+          },
+          data: {
+            title: this.form.title,
+            context: this.form.context,
+            briefIntro: this.form.briefIntro,
+            picUrl: this.form.picUrl,
+          },
+        }).then((res) => {
+          // console.log(res);
           this.$message(res.data.message);
+          this.$emit("confirm");
         });
-        this.close();
       }
-    },*/
+    },
 
     close() {
       this.$emit("closeDialog", false);
       this.form = {
         title: "",
-        context: "",
         picUrl: "",
+        context: "",
+        briefIntro: "",
       };
     },
   },
@@ -147,14 +169,14 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
-.full-row {
-  margin-top: 25px;
-  margin-bottom: 25px;
-  text-align: center;
-}
 .sub-title {
   font-weight: normal;
   font-size: 15px;
+}
+</style>
+<style>
+.resizeNone >>> .el-input__inner {
+  resize: none;
 }
 </style>
 

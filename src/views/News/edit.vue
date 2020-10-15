@@ -30,7 +30,7 @@
             ></el-input>
           </el-col>
           <el-col :span="10" :offset="1">
-            <div class="sub-title">新闻图片：</div>
+            <div class="sub-title">图片地址：</div>
             <el-input
               style="width: 240px; size: 'mini'"
               v-model="form.picUrl"

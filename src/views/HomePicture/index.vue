@@ -9,7 +9,7 @@
       icon="el-icon-circle-plus-outline"
       size="medium"
       class="add_button"
-      @click="add_rotationChart"
+      @click="addItem"
       >添加轮播图</el-button
     >
     <div class="search">
@@ -36,9 +36,9 @@
         "
       >
         <!-- @selection-change="handleSelectionChange" -->
-
+        <el-table-column prop="id" label="id"></el-table-column>
         <el-table-column prop="name" label="轮播图名称"></el-table-column>
-        <el-table-column prop="picUrl" label="地址"></el-table-column>
+        <el-table-column prop="picUrl" label="轮播图地址"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -57,76 +57,133 @@
         </el-table-column>
       </el-table>
       <pageBar
-        style="margin-top: 25px; margin-left: 250px"
+        style="margin: 25px auto"
         :totalnum="totalElement"
+        :pageSize="pageSize"
         @changeSize="changeSize"
-        @changePage="changeCurrentPage"
+        @changePage="getList"
       />
     </div>
-    <editRotationChart
+    <edit
       v-show="editVisible"
       :type="type"
       :form="edit_form"
       @closeDialog="this.closeDialog"
+      @confirm="this.confirm"
     />
   </div>
 </template>
-
 <script>
-import {
-  getList,
-  deleteRotationChart,
-  addRotationChart,
-} from "@/api/rotationChartList.js";
-import editRotationChart from "./edit.vue";
+import edit from "./edit.vue";
 import pageBar from "@/components/pageBar.vue";
 import "@/styles/page.css";
 export default {
   data() {
     return {
       keyword: "",
-      edit_form: {},
       editVisible: false,
       pageSize: 5,
-      currentPage: 1,
-      tableData: [],
-      currentPage: 1,
+      pageNum: 1,
+      totalPages: "",
       totalElement: 100,
-      tableData: [
-        {
-          name: "名称1",
-          picUrl: "url1",
-        },
-        {
-          name: "名称2",
-          picUrl: "url2",
-        },
-        {
-          name: "名称3",
-          picUrl: "url3",
-        },
-        {
-          name: "名称4",
-          picUrl: "url4",
-        },
-      ],
+      currentPage: 1,
+      isMoreRecord: "",
+      tableData: {
+        name: "",
+        picUrl: "",
+      },
+      edit_form: {},
+      type: "",
+      itemId: "",
     };
   },
-  components: { pageBar, editRotationChart },
+  components: { pageBar, edit },
   mounted() {
-    getList().then((res) => {
-      this.message = res.data.message;
-      this.success = res.data.success;
-
-      this.name = res.data.data.name;
-      this.picUrl = res.data.data.picUrl;
-      console.log(res);
-      /*
-      this.tableData = res.data.data.list;
-      this.totalElement = res.data.data.size;
-      */
-    });
+    this.getList(this.pageNum);
   },
+  methods: {
+    /*
+    getList() {
+      this.$axios({
+        url: "/rotationChart/listRotationChart",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        //console.log(res);
+      });
+    },
+    //changeCurrentPage() 
+*/
+    getList(val) {
+      this.pageNum = val;
+      this.$axios({
+        url: "/rotationChart/pageRotationChart?pageNum=" + this.pageNum,
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+        },
+      }).then((res) => {
+        this.tableData = res.data.data;
+        this.totalPages = res.data.totalPages;
+        this.currentPage = res.data.currentPage;
+        this.totalElement = res.data.totalElement;
+        this.isMoreRecord = res.data.isMoreRecord;
+        //this.$message(res.data.message);
+        //console.log(res);
+      });
+    },
+
+    addItem() {
+      this.editVisible = true; //弹出窗口
+      this.type = "添加";
+    },
+
+    closeDialog(val) {
+      this.edit_form = {};
+      this.editVisible = val;
+    },
+
+    confirm() {
+      this.getList(this.pageNum);
+      this.closeDialog(false);
+    },
+
+    handleEdit(index, row) {
+      this.edit_form = row;
+      console.log(this.edit_form);
+      this.editVisible = true;
+      this.type = "编辑";
+      this.itemId = row.id;
+    },
+
+    changeSize(val) {
+      this.pageSize = val;
+      this.getList(this.pageNum);
+    },
+
+    deleteData(index, row) {
+      this.$axios({
+        method: "DELETE",
+        url: "/rotationChart/deleteRotationChart",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { id: row.id },
+      }).then((res) => {
+        console.log(res);
+        this.$message(res.data.message);
+      });
+      this.getList(this.pageNum);
+    },
+  },
+
   watch: {
     /*
     keyword() {
@@ -140,85 +197,6 @@ export default {
       });
     },
     */
-  },
-  methods: {
-    add_rotationChart() {
-      this.editVisible = true; //弹出窗口
-      this.type = "添加";
-    },
-
-    closeDialog(val) {
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.total;
-      });
-      this.edit_form = {};
-      this.editVisible = val;
-    },
-
-    handleEdit(index, row) {
-      this.edit_form = row;
-      console.log(this.edit_form);
-      this.editVisible = true;
-      this.type = "编辑";
-    },
-
-    changeSize(val) {
-      this.pageSize = val;
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    changeCurrentPage() {
-      this.$axios({
-        url: "/werun/rotationChart/pageRotationChart",
-        method: "GET",
-        params: {
-          pageNum: this.pageNum,
-          pageSize: this.pageSize,
-        },
-      }).then((res) => {
-        this.message = res.data.message;
-        this.success = res.data.success;
-
-        this.tableData = res.data.data;
-        /*
-        this.title = res.data.data.title;
-      this.picUrl = res.data.data.picUrl;
-      this.newsDate = res.data.data.newsDate;
-      */
-        this.totalPages = res.data.totalPages;
-        this.currentPage = res.data.currentPage;
-        this.totalElement = res.data.totalElement;
-        this.isMoreRecord = res.data.isMoreRecord;
-        this.$message(res.data.message);
-        console.log(res);
-        //this.totalElement = res.data.data.size;
-      });
-    },
-
-    deleteData(index, row) {
-      deleteRotationChart(row.id).then((res) => {
-        console.log(res);
-        this.$message(res.data.message);
-      });
-      getList().then((res) => {
-        console.log(res);
-        this.message = res.data.message;
-        this.success = res.data.success;
-        this.tableData = res.data.data;
-        //this.totalElement = res.data.data.size;
-      });
-    },
   },
 };
 </script>
