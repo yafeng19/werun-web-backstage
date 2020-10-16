@@ -83,16 +83,13 @@ export default {
     return {
       update_form: {},
       formLabelWidth: "110px",
-      dialogFormVisible: false,
-      form: {},
-      type: "",
     };
   },
   props: {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
-    itemId: "",
+    id: "",
   },
   created() {},
   methods: {
@@ -118,21 +115,22 @@ export default {
         });
       } else {
         this.$axios({
-          url: "/news/updateNews",
+          url: "/news/updateNews?id=" + this.id,
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+          /*
           params: {
-            id: this.itemId,
-          },
-          data: {
+            id: this.id,
+          },*/
+          data: JSON.stringify({
             title: this.form.title,
             picUrl: this.form.picUrl,
             newsDate: this.form.newsDate,
             context: this.form.context,
             briefIntro: this.form.briefIntro,
-          },
+          }),
         }).then((res) => {
           // console.log(res);
           this.$message(res.data.message);

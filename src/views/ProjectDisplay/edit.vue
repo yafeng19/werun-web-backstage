@@ -76,16 +76,13 @@ export default {
     return {
       update_form: {},
       formLabelWidth: "110px",
-      dialogFormVisible: false,
-      form: {},
-      type: "",
     };
   },
   props: {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
-    itemId: "",
+    id: "",
   },
   created() {},
   methods: {
@@ -110,14 +107,16 @@ export default {
         });
       } else {
         this.$axios({
-          url: "/proejct/updateProject",
+          url: "/proejct/updateProject?id=" + this.id,
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+          /*
           params: {
-            id: this.itemId,
+            id: this.id,
           },
+          */
           data: {
             title: this.form.title,
             context: this.form.context,

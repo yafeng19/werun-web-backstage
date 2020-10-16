@@ -52,17 +52,14 @@ export default {
   data() {
     return {
       update_form: {},
-      dialogFormVisible: false,
-      form: {},
       formLabelWidth: "110px",
-      type: "",
     };
   },
   props: {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
-    itemId: "",
+    id: "",
   },
 
   methods: {
@@ -85,14 +82,16 @@ export default {
         });
       } else {
         this.$axios({
-          url: "/rotationChart/updateRotationChart",
+          url: "/rotationChart/updateRotationChart?id=" + this.id,
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+          /*
           params: {
-            id: this.itemId,
+            id: this.id,
           },
+          */
           data: {
             name: this.form.name,
             picUrl: this.form.picUrl,

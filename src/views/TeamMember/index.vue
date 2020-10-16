@@ -71,6 +71,7 @@
     <edit
       v-show="editVisible"
       :type="type"
+      :id="id"
       :form="edit_form"
       @closeDialog="this.closeDialog"
       @confirm="this.confirm"
@@ -102,7 +103,7 @@ export default {
       },
       edit_form: {},
       type: "",
-      itemId: "",
+      id: "",
     };
   },
   components: { pageBar, edit },
@@ -168,7 +169,7 @@ export default {
       console.log(this.edit_form);
       this.editVisible = true;
       this.type = "编辑";
-      this.itemId = row.id;
+      this.id = row.id;
     },
 
     changeSize(val) {

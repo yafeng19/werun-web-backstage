@@ -42,14 +42,14 @@
             <div class="sub-title">专业id：</div>
             <el-input
               style="width: 240px; size: 'mini'"
-              v-model="form.majorId"
+              v-model="form.major"
             ></el-input>
           </el-col>
           <el-col :span="10" :offset="1">
             <div class="sub-title">职务id：</div>
             <el-input
               style="width: 240px; size: 'mini'"
-              v-model="form.positionId"
+              v-model="form.position"
             ></el-input>
           </el-col>
         </el-row>
@@ -92,16 +92,13 @@ export default {
     return {
       update_form: {},
       formLabelWidth: "110px",
-      dialogFormVisible: false,
-      form: {},
-      type: "",
     };
   },
   props: {
     dialogFormVisible: Boolean,
     form: {},
     type: "",
-    itemId: "",
+    id: "",
   },
   created() {},
   methods: {
@@ -118,8 +115,8 @@ export default {
             grade: this.form.grade,
             picUrl: this.form.picUrl,
             context: this.form.context,
-            majorId: this.form.majorId,
-            positionId: this.form.positionId,
+            major: this.form.major,
+            position: this.form.position,
           },
         }).then((res) => {
           // console.log(res);
@@ -128,21 +125,23 @@ export default {
         });
       } else {
         this.$axios({
-          url: "/member/updateMember",
+          url: "/member/updateMember?id=" + this.id,
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+          /*
           params: {
-            id: this.itemId,
+            id: this.id,
           },
+          */
           data: {
             name: this.form.name,
             grade: this.form.grade,
             picUrl: this.form.picUrl,
             context: this.form.context,
-            majorId: this.form.majorId,
-            positionId: this.form.positionId,
+            major: this.form.major,
+            position: this.form.position,
           },
         }).then((res) => {
           // console.log(res);
@@ -159,8 +158,8 @@ export default {
         grade: "",
         picUrl: "",
         context: "",
-        majorId: "",
-        positionId: "",
+        major: "",
+        position: "",
       };
     },
   },
