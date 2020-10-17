@@ -59,8 +59,9 @@
             <el-input
               class="resizeNone"
               type="textarea"
-              :autosize="{ minRows: 2, maxRows: 4 }"
+              :autosize="{ minRows: 3, maxRows: 5 }"
               style="width: 500px"
+              resize="none"
               v-model="form.context"
             ></el-input>
           </el-col>

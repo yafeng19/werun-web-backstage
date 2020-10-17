@@ -40,17 +40,35 @@
         <el-row :gutter="20">
           <el-col :span="10" :offset="1">
             <div class="sub-title">专业id：</div>
-            <el-input
+            <el-select
               style="width: 240px; size: 'mini'"
-              v-model="form.major"
-            ></el-input>
+              v-model="majorValue"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in majorOptions"
+                :label="item.majorLabel"
+                :key="item.majorValue"
+                :value="item.majorValue"
+              >
+              </el-option>
+            </el-select>
           </el-col>
           <el-col :span="10" :offset="1">
             <div class="sub-title">职务id：</div>
-            <el-input
+            <el-select
               style="width: 240px; size: 'mini'"
-              v-model="form.position"
-            ></el-input>
+              v-model="positionValue"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in positionOptions"
+                :label="item.positionLabel"
+                :key="item.positionValue"
+                :value="item.positionValue"
+              >
+              </el-option>
+            </el-select>
           </el-col>
         </el-row>
         <el-row :gutter="20">
@@ -68,8 +86,9 @@
             <el-input
               class="resizeNone"
               type="textarea"
-              :autosize="{ minRows: 2, maxRows: 4 }"
+              :autosize="{ minRows: 3, maxRows: 5 }"
               style="width: 500px"
+              resize="none"
               v-model="form.context"
             ></el-input>
           </el-col>
@@ -92,6 +111,28 @@ export default {
     return {
       update_form: {},
       formLabelWidth: "110px",
+      majorOptions: [
+        {
+          majorValue: 1,
+          majorLabel: "软件工程",
+        },
+        {
+          majorValue: 2,
+          majorLabel: "计算机",
+        },
+      ],
+      positionOptions: [
+        {
+          positionValue: 1,
+          positionLabel: "前端",
+        },
+        {
+          positionValue: 2,
+          positionLabel: "后端",
+        },
+      ],
+      majorValue: "",
+      positionValue: "",
     };
   },
   props: {
@@ -115,8 +156,8 @@ export default {
             grade: this.form.grade,
             picUrl: this.form.picUrl,
             context: this.form.context,
-            major: this.form.major,
-            position: this.form.position,
+            majorId: this.majorValue,
+            positionId: this.form.positionValue,
           },
         }).then((res) => {
           // console.log(res);
@@ -140,8 +181,8 @@ export default {
             grade: this.form.grade,
             picUrl: this.form.picUrl,
             context: this.form.context,
-            major: this.form.major,
-            position: this.form.position,
+            majorId: this.majorValue,
+            positionId: this.positionValue,
           },
         }).then((res) => {
           // console.log(res);
@@ -158,8 +199,8 @@ export default {
         grade: "",
         picUrl: "",
         context: "",
-        major: "",
-        position: "",
+        majorValue: "",
+        positionValue: "",
       };
     },
   },
@@ -194,10 +235,8 @@ export default {
   font-weight: normal;
   font-size: 15px;
 }
-</style>
-<style>
-.resizeNone >>> .el-input__inner {
+
+.resizeNone >>> .el-input {
   resize: none;
 }
 </style>
-
